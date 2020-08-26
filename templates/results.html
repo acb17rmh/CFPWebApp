@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include 'partials/header.html' %}
+    <meta charset="UTF-8">
+    <title>CFP Classification Results</title>
+</head>
+<body>
+
+    <div id="contentContainer">
+        	<h3>Results for CFP</h3>
+
+        {% if prediction == ['cfp'] %}
+            <h2 style="color:red;">CFP</h2>
+        {% elif prediction == ['email'] %}
+            <h2 style="color:blue;">Not a CFP</h2>
+        {% endif %}
+    </div>
+
+</body>
+</html>

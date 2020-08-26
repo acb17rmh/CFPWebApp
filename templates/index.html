@@ -8,11 +8,8 @@
 <body>
 
     <div id="contentContainer">
-       {% if name %}
-            <h1>Hello {{ name }}!</h1>
-        {% else %}
-         <h1>Hello World!</h1>
-        {% endif %}
+        <h1>CFP Classifier</h1>
+        <p>Determine whether the input text is a CFP or not.</p>
 
         {% include 'partials/cfp_form.html' %}
     </div>
