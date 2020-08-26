@@ -6,11 +6,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 import dateparser
-import pandas
 import re
 import spacy
-import argparse
-import os.path
+import en_core_web_sm
+
 
 app = Flask(__name__)
 
@@ -27,7 +26,7 @@ CONJUNCTION_REGEX = re.compile("|".join(["conjunction", "assosciate", "joint", "
 WEB_URL_REGEX = re.compile(
     r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))""")
 
-nlp = spacy.load('en_core_web_sm', disable=['tagger', 'parser', 'textcat'])
+nlp = en_core_web_sm.load()
 
 @app.route('/')
 @app.route('/<name>')
@@ -200,6 +199,9 @@ def get_start_date(date_to_sentence):
         conference_start = list(date_to_sentence)[0]
         conference_start = dateparser.parse(conference_start)
 
+    if conference_start is not None:
+        conference_start = conference_start.strftime("%d/%m/%Y")
+
     return conference_start
 
 def get_submission_deadline(date_to_sentence):
@@ -220,6 +222,10 @@ def get_submission_deadline(date_to_sentence):
         if re.search(SUBMISSION_DEADLINE_REGEX, sentence):
             if submission_deadline is None:
                 submission_deadline = date_object
+
+    if submission_deadline is not None:
+        submission_deadline = submission_deadline.strftime("%d/%m/%Y")
+
     return submission_deadline
 
 def get_notification_due(date_to_sentence):
@@ -240,6 +246,10 @@ def get_notification_due(date_to_sentence):
         if re.search(NOTIFICATION_DEADLINE_REGEX, sentence):
             if notification_due is None:
                 notification_due = date_object
+
+    if notification_due is not None:
+        notification_due = notification_due.strftime("%d/%m/%Y")
+
     return notification_due
 
 def get_final_version_deadline(date_to_sentence):
@@ -260,6 +270,10 @@ def get_final_version_deadline(date_to_sentence):
         if re.search(FINAL_VERSION_DEADLINE_REGEX, sentence):
             if final_version_deadline is None:
                 final_version_deadline = date_object
+
+    if final_version_deadline is not None:
+        final_version_deadline = final_version_deadline.strftime("%d/%m/%Y")
+
     return final_version_deadline
 
 if __name__ == '__main__':

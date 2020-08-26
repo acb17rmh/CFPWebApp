@@ -8,17 +8,28 @@
 <body>
 
     <div id="contentContainer">
-        	<h3>Results for CFP</h3>
+        <a href="/">Return to homepage</a>
+
+        	<h1>Input text result</h1>
 
         {% if prediction == ['cfp'] %}
-            <h2 style="color:red;">CFP</h2>
-            <p>{{ input_text }}</p>
+            <h2 style="color:red;">Input text is a CFP</h2>
+
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse" aria-expanded="false" aria-controls="collapse">
+                Show input text
+            </button>
+
+            <div class="collapse" id="collapse">
+                <div class="card card-body">
+                    <p>{{ input_text }}</p>
+                </div>
+            </div>
 
             <table class="table">
               <thead>
                 <tr>
                   <th scope="col"></th>
-                  <th scope="col">First</th>
+                  <th scope="col">Extracted Information</th>
                 </tr>
               </thead>
               <tbody>
