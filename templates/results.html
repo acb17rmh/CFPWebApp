@@ -12,6 +12,43 @@
 
         {% if prediction == ['cfp'] %}
             <h2 style="color:red;">CFP</h2>
+            <p>{{ input_text }}</p>
+
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">First</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Conference Name</th>
+                  <td>{{ conference_name }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Location</th>
+                  <td>{{ locations }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Start Date</th>
+                  <td>{{ start_date }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Submission Deadline</th>
+                  <td>{{ submission_deadline }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Notification Due</th>
+                  <td>{{ notification_due }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Final Version Deadline</th>
+                  <td>{{ final_version_deadline }}</td>
+                </tr>
+
+              </tbody>
+            </table>
         {% elif prediction == ['email'] %}
             <h2 style="color:blue;">Not a CFP</h2>
         {% endif %}
