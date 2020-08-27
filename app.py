@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 import dateparser
 import re
 import en_core_web_sm
 import pickle
+import numpy as np
 
 app = Flask(__name__)
 
@@ -26,7 +27,6 @@ WEB_URL_REGEX = re.compile(
 nlp = en_core_web_sm.load()
 vectorizer = pickle.load(open("models/vectorizer.sav", 'rb'))
 classifier = pickle.load(open("models/classifier.sav", 'rb'))
-
 
 @app.route('/')
 def index():
@@ -51,6 +51,12 @@ def predict():
                            notification_due=get_notification_due(date_to_sentence),
                            final_version_deadline=get_final_version_deadline(date_to_sentence))
 
+@app.route('/api', methods=['POST'])
+def api_predict():
+    data = request.get_json()
+    vectorized_data = vectorizer.transform(list(data.values()))
+    prediction = classifier.predict(vectorized_data)
+    return jsonify(prediction[0])
 
 def extract_locations(doc):
     """
