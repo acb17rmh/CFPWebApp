@@ -4,7 +4,9 @@ import dateparser
 import re
 import en_core_web_sm
 import pickle
+import requests
 
+# Initialise app and database connection
 app = Flask(__name__)
 
 # Regex patterns for identifying which date is which
@@ -40,19 +42,10 @@ def about():
 def predict():
     if request.method == "POST":
         input_text = request.form["input_text"]
-        input_data = [input_text]
-        vectorized_data = vectorizer.transform(input_data)
-        prediction = classifier.predict(vectorized_data)
-        doc = nlp(input_text)
-        split_cfp_text = preprocess_text(input_text)
-        date_to_sentence = extract_dates(split_cfp_text)
-    return render_template('results.html', input_text=input_text, prediction=prediction,
-                           locations=extract_locations(doc),
-                           conference_name=extract_conference_name(split_cfp_text),
-                           start_date=get_start_date(date_to_sentence),
-                           submission_deadline=get_submission_deadline(date_to_sentence),
-                           notification_due=get_notification_due(date_to_sentence),
-                           final_version_deadline=get_final_version_deadline(date_to_sentence))
+        url = 'http://localhost:5000/api'
+        response = requests.post(url, json={'data': input_text})
+        return response.json()
+
 
 @app.route('/api', methods=['POST'])
 def api_predict():
