@@ -4,7 +4,6 @@ import dateparser
 import re
 import en_core_web_sm
 import pickle
-import numpy as np
 
 app = Flask(__name__)
 
@@ -32,6 +31,10 @@ classifier = pickle.load(open("models/classifier.sav", 'rb'))
 def index():
     return render_template("index.html")
 
+@app.route('/about')
+def about():
+    return render_template("about.html")
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -53,10 +56,24 @@ def predict():
 
 @app.route('/api', methods=['POST'])
 def api_predict():
-    data = request.get_json()
-    vectorized_data = vectorizer.transform(list(data.values()))
+    input_data = request.get_json()
+    vectorized_data = vectorizer.transform(list(input_data.values()))
     prediction = classifier.predict(vectorized_data)
-    return jsonify(prediction[0])
+    if prediction[0] == "email":
+        output_data = {'prediction': 'email'}
+    elif prediction[0] == "cfp":
+        input_text = list(input_data.values())
+        doc = nlp(input_text[0])
+        split_cfp_text = preprocess_text(input_text[0])
+        date_to_sentence = extract_dates(split_cfp_text)
+        output_data = {'prediction': 'cfp',
+                       'conference_name': extract_conference_name(split_cfp_text),
+                       'location': extract_locations(doc),
+                        'start_date': get_start_date(date_to_sentence),
+                       'submission_deadline': get_submission_deadline(date_to_sentence),
+                       'notification_due': get_notification_due(date_to_sentence),
+                       'final_version_deadline': get_final_version_deadline(date_to_sentence)}
+    return jsonify(output_data)
 
 def extract_locations(doc):
     """
