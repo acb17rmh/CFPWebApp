@@ -5,6 +5,7 @@ import re
 import en_core_web_sm
 import pickle
 import requests
+import json
 
 # Initialise app and database connection
 app = Flask(__name__)
@@ -35,7 +36,7 @@ def index():
 
 @app.route('/about')
 def about():
-    return render_template("about.html")
+    return render_template("about.html", data=None)
 
 
 @app.route('/predict', methods=['POST'])
@@ -44,8 +45,17 @@ def predict():
         input_text = request.form["input_text"]
         url = 'http://localhost:5000/api'
         response = requests.post(url, json={'data': input_text})
-        return response.json()
+        data = response.json()
+        print (data['prediction'])
 
+        if data['prediction'] == 'cfp':
+            return render_template("about.html", prediction="cfp", conference_name=data['conference_name'],
+                                   location=data['location'], start_date=data['start_date'],
+                                   submission_deadline=data['submission_deadline'],
+                                   notification_due=data['notification_due'],
+                                   final_version_deadline=data['final_version_deadline'])
+        else:
+            return render_template("about.html", prediction="email")
 
 @app.route('/api', methods=['POST'])
 def api_predict():

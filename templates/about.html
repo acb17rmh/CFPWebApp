@@ -6,15 +6,47 @@
     <title>CFP Scanner</title>
 </head>
 <body>
+    {% include 'partials/navbar.html' %}
 
-    <div id="contentContainer">
-        {% include 'partials/navbar.html' %}
+    <main role="main" class="container">
         <h2>Interactive Demo</h2>
         <p>CFP Scanner uses a pre-trained model to determine whether the input text is a CFP or not.</p>
-
         {% include 'partials/cfp_form.html' %}
-    </div>
 
+        {%  if prediction == 'cfp' %}
+            <table>
+                <tbody>
+                    <tr>
+                      <th scope="row">Conference Name</th>
+                      <td>{{ conference_name }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Location</th>
+                      <td>{{ location }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Start Date</th>
+                      <td>{{ start_date }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Submission Deadline</th>
+                      <td>{{ submission_deadline }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Notification Due</th>
+                      <td>{{ notification_due }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Final Version Deadline</th>
+                      <td>{{ final_version_deadline }}</td>
+                    </tr>
+              </tbody>
+            </table>
+        {% else %}
+            <h2>Input data is not a Call for Paper</h2>
+        {% endif %}
+    </main>
+    {% include 'partials/footer.html' %}
 </body>
 </html>
 
