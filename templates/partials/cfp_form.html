@@ -1,6 +1,6 @@
 <form action="{{ url_for('predict')}}" method="POST" id="newEntryForm">
     <label for="input_text">Input Text</label>
-    <textarea class="form-control" type="text" name="input_text" id="input_text"></textarea>
+    <textarea required class="form-control" type="text" name="input_text" id="input_text" minlength="100"></textarea>
 
-    <input type="submit" value="Make new entry"/>
+    <input type="submit" value="Submit"/>
 </form>

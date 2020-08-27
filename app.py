@@ -1,14 +1,9 @@
 from flask import Flask, render_template, request
 
-import pandas as pd
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
 import dateparser
 import re
 import en_core_web_sm
-
+import pickle
 
 app = Flask(__name__)
 
@@ -16,8 +11,10 @@ app = Flask(__name__)
 CONFERENCE_DATES_REGEX = re.compile("|".join(["when", "workshop", "held", "conference", "held"]))
 SUBMISSION_DEADLINE_REGEX = re.compile("|".join(["submit", "submission", "paper", "due", "deadline"]))
 FINAL_VERSION_DEADLINE_REGEX = re.compile("|".join(["final", "camera", "ready", "camera-ready", "last", "manuscript"]))
-NOTIFICATION_DEADLINE_REGEX = re.compile("|".join(["notice", "notices", "notified", "notification", "notifications", "acceptance"]))
-CONFERENCE_NAME_REGEX = re.compile("|".join(["workshop", "conference", "meeting", "theme", "international", "symposium", "forum"]))
+NOTIFICATION_DEADLINE_REGEX = re.compile(
+    "|".join(["notice", "notices", "notified", "notification", "notifications", "acceptance"]))
+CONFERENCE_NAME_REGEX = re.compile(
+    "|".join(["workshop", "conference", "meeting", "theme", "international", "symposium", "forum"]))
 ORDINAL_REGEX = re.compile(
     "|".join(["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth",
               "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th"]), re.IGNORECASE)
@@ -25,39 +22,35 @@ CONJUNCTION_REGEX = re.compile("|".join(["conjunction", "assosciate", "joint", "
 WEB_URL_REGEX = re.compile(
     r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))""")
 
+# Load nlp model and pretrained classifier/vectorizers
 nlp = en_core_web_sm.load()
+vectorizer = pickle.load(open("models/vectorizer.sav", 'rb'))
+classifier = pickle.load(open("models/classifier.sav", 'rb'))
+
 
 @app.route('/')
-@app.route('/<name>')
-def hello_world(name=None):
-    return render_template("index.html", name=name)
+def index():
+    return render_template("index.html")
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
-        df = pd.read_csv("corpus.csv", encoding="latin-1").fillna(" ")
-        df.drop_duplicates(inplace=True)
-        data_train, data_test = train_test_split(df, test_size=0.8, shuffle=True, random_state=1000)
-        vectorizer = CountVectorizer(stop_words=stopwords.words("english"), lowercase=True)
-        train_counts = vectorizer.fit_transform(data_train['text'])
-        classifier = MultinomialNB()
-        targets = data_train["class_label"]
-        classifier.fit(train_counts, targets)
+    if request.method == "POST":
+        input_text = request.form["input_text"]
+        input_data = [input_text]
+        vectorized_data = vectorizer.transform(input_data)
+        prediction = classifier.predict(vectorized_data)
+        doc = nlp(input_text)
+        split_cfp_text = preprocess_text(input_text)
+        date_to_sentence = extract_dates(split_cfp_text)
+    return render_template('results.html', input_text=input_text, prediction=prediction,
+                           locations=extract_locations(doc),
+                           conference_name=extract_conference_name(split_cfp_text),
+                           start_date=get_start_date(date_to_sentence),
+                           submission_deadline=get_submission_deadline(date_to_sentence),
+                           notification_due=get_notification_due(date_to_sentence),
+                           final_version_deadline=get_final_version_deadline(date_to_sentence))
 
-        if request.method == "POST":
-                input_text = request.form["input_text"]
-                input_data = [input_text]
-                vectorized_data = vectorizer.transform(input_data)
-                prediction = classifier.predict(vectorized_data)
-                doc = nlp(input_text)
-                print (doc)
-                split_cfp_text = preprocess_text(input_text)
-                date_to_sentence = extract_dates(split_cfp_text)
-        return render_template('results.html', input_text=input_text, prediction=prediction, locations=extract_locations(doc),
-                               conference_name=extract_conference_name(split_cfp_text),
-                               start_date=get_start_date(date_to_sentence),
-                               submission_deadline=get_submission_deadline(date_to_sentence),
-                               notification_due=get_notification_due(date_to_sentence),
-                               final_version_deadline=get_final_version_deadline(date_to_sentence))
 
 def extract_locations(doc):
     """
@@ -68,17 +61,14 @@ def extract_locations(doc):
         location: the first location mentioned in the text
     """
 
-    # Initialise lists for the locations within a given CFP
-    cfp_locations = []
-
     for entity in doc.ents:
         if entity.label_ == "GPE":
             return entity.text
 
     return None
 
-def extract_conference_name(split_cfp_text):
 
+def extract_conference_name(split_cfp_text):
     """
     Function to extract the conference name from a CFP text. Uses rule-based patterns to assign scores to substrings
     of the CFP's text, and returns the one with the highest score. Takes regex patterns containing key words to filter
@@ -114,7 +104,7 @@ def extract_conference_name(split_cfp_text):
         if "call for papers" in sent.lower():
             next_sentence_bonus = True
         if sent.endswith(" on") or sent.endswith(" for"):
-           sent += " " + split_cfp_text[index + 1]
+            sent += " " + split_cfp_text[index + 1]
         if re.search(conference_name_regex, sent.lower()):
             score += 8
         if re.search(ordinal_regex, sent.lower()) and counter < 10:
@@ -132,6 +122,7 @@ def extract_conference_name(split_cfp_text):
 
     return highest_score
 
+
 def preprocess_text(text):
     """
     Method to preprocess text for information extraction. Text is split on newlines and commas,
@@ -148,6 +139,7 @@ def preprocess_text(text):
     text = text.splitlines()
     text = [substring for substring in text if substring is not ""]
     return text
+
 
 def extract_dates(split_cfp_text):
     """
@@ -171,6 +163,7 @@ def extract_dates(split_cfp_text):
                         dateparser.parse(date) is not None}
     # returns a dictionary of form (date -> sentence)
     return date_to_sentence
+
 
 def get_start_date(date_to_sentence):
     """
@@ -203,6 +196,7 @@ def get_start_date(date_to_sentence):
 
     return conference_start
 
+
 def get_submission_deadline(date_to_sentence):
     """
     Function to extract the submission deadline of a conference from a Call for Paper.
@@ -226,6 +220,7 @@ def get_submission_deadline(date_to_sentence):
         submission_deadline = submission_deadline.strftime("%d/%m/%Y")
 
     return submission_deadline
+
 
 def get_notification_due(date_to_sentence):
     """
@@ -251,6 +246,7 @@ def get_notification_due(date_to_sentence):
 
     return notification_due
 
+
 def get_final_version_deadline(date_to_sentence):
     """
     Function to extract the submission deadline of a conference from a Call for Paper.
@@ -275,6 +271,6 @@ def get_final_version_deadline(date_to_sentence):
 
     return final_version_deadline
 
+
 if __name__ == '__main__':
     app.run()
-
