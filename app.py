@@ -9,6 +9,7 @@ import json
 
 # Initialise app and database connection
 app = Flask(__name__)
+app.debug = True
 
 # Regex patterns for identifying which date is which
 CONFERENCE_DATES_REGEX = re.compile("|".join(["when", "workshop", "held", "conference", "held"]))
