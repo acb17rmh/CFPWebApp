@@ -9,8 +9,16 @@
     {% include 'partials/navbar.html' %}
 
     <main role="main" class="container">
-        <h2>Interactive Demo</h2>
-        <p>CFP Scanner uses a pre-trained model to determine whether the input text is a CFP or not.</p>
+        <h5>What is CFP Scanner?</h5>
+        <p>CFP Scanner uses NLP techniques to extract information from Call for Papers, saving you the time of
+        looking through long emails or finding relevant conferences manually. A Call for Paper can be contributed by
+        sending it via email to <a href="mailto: cfpscanner@mail.com">cfpscanner@mail.com</a>. Once contributed,
+        any relevant details will be extracted and then the event will be seen on the homepage.</p>
+
+
+
+        <h5>Interactive Demo</h5>
+        <p>See how CFP Scanner works behind the scenes:</p>
         {% include 'partials/cfp_form.html' %}
 
         {%  if prediction == 'cfp' %}

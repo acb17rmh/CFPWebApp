@@ -12,7 +12,6 @@ and saved into a database collection. All other emails are discarded.
 # database and IMAP configuration
 client = pymongo.MongoClient(os.environ.get("DATABASE"))
 db = client["cfpscanner"]
-email_collection = db["emails"]
 conferences_collection = db["conferences"]
 mailbox = MailBox('imap.mail.com')
 emails = []
@@ -25,7 +24,7 @@ def read_emails(username, password):
     for msg in mailbox.fetch():
         email_data = {'body': msg.text}
         emails.append(email_data)
-    # mailbox.move(mailbox.fetch(), 'processed')
+    mailbox.move(mailbox.fetch(), 'processed')
     mailbox.logout()
     return None
 

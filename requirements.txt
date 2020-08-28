@@ -1,4 +1,4 @@
-pymongo
+pymongo[srv]
 click==7.0
 itsdangerous==1.1.0
 Jinja2==2.11.1
