@@ -65,8 +65,7 @@ def get_conferences():
 def predict():
     if request.method == "POST":
         input_text = request.form["input_text"]
-        url = 'http://localhost:5000/api'
-        response = requests.post(url, json={'data': input_text})
+        response = requests.post(os.environ.get('SERVER_URL'), json={'data': input_text})
         data = response.json()
         print(data['prediction'])
 
