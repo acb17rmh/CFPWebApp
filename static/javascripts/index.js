@@ -53,6 +53,8 @@ function createConferenceCard(conference) {
     let detailsList = document.createElement('ul')
     detailsList.className = "list-group list-group-flush"
 
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+
     let locationLI = document.createElement('li')
     locationLI.className = "list-group-item"
     locationLI.textContent = "Location: " + conference.location
@@ -60,23 +62,29 @@ function createConferenceCard(conference) {
 
     let startDateLI = document.createElement('li')
     startDateLI.className = "list-group-item"
-    startDateLI.textContent = "Start Date: " + conference.start_date
+    startDateLI.textContent = "Start Date: " + new Date(conference.start_date).toLocaleString("en-GB", dateOptions)
     detailsList.appendChild(startDateLI)
 
     let submissionDeadlineLI = document.createElement('li')
     submissionDeadlineLI.className = "list-group-item"
-    submissionDeadlineLI.textContent = "Submission Deadline: " + conference.submission_deadline
+    submissionDeadlineLI.textContent = "Submission Deadline: " + new Date(conference.submission_deadline).toLocaleString("en-GB", dateOptions)
     detailsList.appendChild(submissionDeadlineLI)
 
     let notificationDueLI = document.createElement('li')
     notificationDueLI.className = "list-group-item"
-    notificationDueLI.textContent = "Notification Due: " + conference.notification_due
-    detailsList.appendChild(notificationDueLI)
+    notificationDueLI.textContent = "Notification Due: " + new Date(conference.notification_due).toLocaleString("en-GB", dateOptions)
+    if (conference.notification_due) {
+        detailsList.appendChild(notificationDueLI)
+    }
+
 
     let urlLI = document.createElement('li')
     urlLI.className = "list-group-item"
-    urlLI.textContent = "Final Version Deadline: " + conference.url
-    detailsList.appendChild(urlLI)
+    urlLI.textContent = "Final Version Deadline: " + new Date(conference.final_version_deadline).toLocaleString("en-GB", dateOptions)
+    if (conference.final_version_deadline) {
+        detailsList.appendChild(urlLI)
+    }
+
 
     card.append(cardBody);
     card.append(detailsList);

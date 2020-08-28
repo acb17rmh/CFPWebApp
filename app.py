@@ -246,7 +246,7 @@ def get_start_date(date_to_sentence):
         conference_start = dateparser.parse(conference_start)
 
     if conference_start is not None:
-        conference_start = conference_start.strftime("%d/%m/%Y")
+        conference_start = conference_start
 
     return conference_start
 
@@ -271,7 +271,7 @@ def get_submission_deadline(date_to_sentence):
                 submission_deadline = date_object
 
     if submission_deadline is not None:
-        submission_deadline = submission_deadline.strftime("%d/%m/%Y")
+        submission_deadline = submission_deadline
 
     return submission_deadline
 
@@ -296,7 +296,7 @@ def get_notification_due(date_to_sentence):
                 notification_due = date_object
 
     if notification_due is not None:
-        notification_due = notification_due.strftime("%d/%m/%Y")
+        notification_due = notification_due
 
     return notification_due
 
@@ -321,7 +321,7 @@ def get_final_version_deadline(date_to_sentence):
                 final_version_deadline = date_object
 
     if final_version_deadline is not None:
-        final_version_deadline = final_version_deadline.strftime("%d/%m/%Y")
+        final_version_deadline = final_version_deadline
 
     return final_version_deadline
 
