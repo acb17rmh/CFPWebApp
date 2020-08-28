@@ -20,10 +20,14 @@ function getConferences() {
 
 function makeConferenceCards(conferences) {
     let deck = document.createElement('div');
+    deck.className = "row justify-content-center"
     deck.id = 'postsDeck';
 
     conferences.forEach((element) => {
-        deck.appendChild(createConferenceCard(element))
+        let col = document.createElement('div')
+        col.className = "col auto mb-3"
+        col.appendChild(createConferenceCard(element))
+        deck.appendChild(col)
     })
 
     $('#content').empty()
@@ -32,14 +36,18 @@ function makeConferenceCards(conferences) {
 
 function createConferenceCard(conference) {
     let card = document.createElement('div');
-    card.className = 'card';
+    card.className = 'card mb-4 h-100';
+    card.style = "width: 24rem;"
     card.id = conference._id;
 
     let cardBody = document.createElement('div');
     cardBody.className = 'card-body';
 
     let title = document.createElement("h5")
-    title.textContent = conference.conference_name;
+    let titleLink = document.createElement("a")
+    titleLink.href = conference.url
+    titleLink.textContent = conference.conference_name
+    title.appendChild(titleLink)
     cardBody.appendChild(title)
 
     let detailsList = document.createElement('ul')
@@ -47,7 +55,7 @@ function createConferenceCard(conference) {
 
     let locationLI = document.createElement('li')
     locationLI.className = "list-group-item"
-    locationLI.textContent = conference.location
+    locationLI.textContent = "Location: " + conference.location
     detailsList.appendChild(locationLI)
 
     let startDateLI = document.createElement('li')
@@ -65,10 +73,10 @@ function createConferenceCard(conference) {
     notificationDueLI.textContent = "Notification Due: " + conference.notification_due
     detailsList.appendChild(notificationDueLI)
 
-    let finalVersionDeadlineLI = document.createElement('li')
-    finalVersionDeadlineLI.className = "list-group-item"
-    finalVersionDeadlineLI.textContent = "Final Version Deadline: " + conference.final_version_deadline
-    detailsList.appendChild(finalVersionDeadlineLI)
+    let urlLI = document.createElement('li')
+    urlLI.className = "list-group-item"
+    urlLI.textContent = "Final Version Deadline: " + conference.url
+    detailsList.appendChild(urlLI)
 
     card.append(cardBody);
     card.append(detailsList);
