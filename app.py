@@ -1,15 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 
+import os
 import dateparser
 import re
 import en_core_web_sm
 import pickle
 import requests
+import pymongo
 import json
+from bson.json_util import dumps
+from bson.json_util import loads
 
 # Initialise app and database connection
 app = Flask(__name__)
 app.debug = True
+client = pymongo.MongoClient(os.environ.get("DATABASE"))
+db = client["cfpscanner"]
+email_collection = db["emails"]
+conferences_collection = db["conferences"]
 
 # Regex patterns for identifying which date is which
 CONFERENCE_DATES_REGEX = re.compile("|".join(["when", "workshop", "held", "conference", "held"]))
@@ -31,13 +39,26 @@ nlp = en_core_web_sm.load()
 vectorizer = pickle.load(open("models/vectorizer.sav", 'rb'))
 classifier = pickle.load(open("models/classifier.sav", 'rb'))
 
+
 @app.route('/')
 def index():
     return render_template("index.html")
 
+
 @app.route('/about')
 def about():
     return render_template("about.html", data=None)
+
+
+@app.route('/get_conferences', methods=['GET'])
+def get_conferences():
+    conferences = []
+    data = conferences_collection.find({})
+    for conference in data:
+        conference['_id'] = str(conference['_id'])
+        conferences.append(conference)
+
+    return jsonify(conferences)
 
 
 @app.route('/predict', methods=['POST'])
@@ -47,7 +68,7 @@ def predict():
         url = 'http://localhost:5000/api'
         response = requests.post(url, json={'data': input_text})
         data = response.json()
-        print (data['prediction'])
+        print(data['prediction'])
 
         if data['prediction'] == 'cfp':
             return render_template("about.html", prediction="cfp", conference_name=data['conference_name'],
@@ -57,6 +78,7 @@ def predict():
                                    final_version_deadline=data['final_version_deadline'])
         else:
             return render_template("about.html", prediction="email")
+
 
 @app.route('/api', methods=['POST'])
 def api_predict():
@@ -73,11 +95,12 @@ def api_predict():
         output_data = {'prediction': 'cfp',
                        'conference_name': extract_conference_name(split_cfp_text),
                        'location': extract_locations(doc),
-                        'start_date': get_start_date(date_to_sentence),
+                       'start_date': get_start_date(date_to_sentence),
                        'submission_deadline': get_submission_deadline(date_to_sentence),
                        'notification_due': get_notification_due(date_to_sentence),
                        'final_version_deadline': get_final_version_deadline(date_to_sentence)}
     return jsonify(output_data)
+
 
 def extract_locations(doc):
     """
