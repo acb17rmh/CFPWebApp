@@ -7,16 +7,13 @@ import en_core_web_sm
 import pickle
 import requests
 import pymongo
-import json
-from bson.json_util import dumps
-from bson.json_util import loads
+from collections import Counter
 
 # Initialise app and database connection
 app = Flask(__name__)
 app.debug = True
 client = pymongo.MongoClient(os.environ.get("DATABASE"))
 db = client["cfpscanner"]
-email_collection = db["emails"]
 conferences_collection = db["conferences"]
 
 # Regex patterns for identifying which date is which
@@ -75,7 +72,7 @@ def predict():
                                    submission_deadline=data['submission_deadline'],
                                    notification_due=data['notification_due'],
                                    final_version_deadline=data['final_version_deadline'],
-                                   url=data['url'])
+                                   url=data['url'], keywords=data['keywords'])
         else:
             return render_template("about.html", prediction="email")
 
@@ -88,9 +85,9 @@ def api_predict():
     if prediction[0] == "email":
         output_data = {'prediction': 'email'}
     elif prediction[0] == "cfp":
-        input_text = list(input_data.values())
-        doc = nlp(input_text[0])
-        split_cfp_text = preprocess_text(input_text[0])
+        input_text = list(input_data.values())[0]
+        doc = nlp(input_text)
+        split_cfp_text = preprocess_text(input_text)
         date_to_sentence = extract_dates(split_cfp_text)
         output_data = {'prediction': 'cfp',
                        'conference_name': extract_conference_name(split_cfp_text),
@@ -99,7 +96,8 @@ def api_predict():
                        'submission_deadline': get_submission_deadline(date_to_sentence),
                        'notification_due': get_notification_due(date_to_sentence),
                        'final_version_deadline': get_final_version_deadline(date_to_sentence),
-                       'url': extract_urls(split_cfp_text)}
+                       'url': extract_urls(split_cfp_text),
+                       "keywords": extract_keywords(input_text)}
     return jsonify(output_data)
 
 
@@ -333,6 +331,18 @@ def extract_urls(split_cfp_text):
                 urls.append(url)
     print (urls)
     return urls[0]
+
+def extract_keywords(input_text):
+    keywords = []
+    tags = ['NOUN', 'PROPN']
+    doc = nlp(input_text.lower())
+    for token in doc:
+        if (token.text in nlp.Defaults.stop_words):
+            continue
+        if (token.pos_ in tags):
+            keywords.append(token.text)
+
+    return [x[0] for x in Counter(keywords).most_common(5)]
 
 if __name__ == '__main__':
     app.run()

@@ -35,7 +35,7 @@ def predict_emails():
     """
     for email_body in emails:
         data = requests.post(os.environ.get('SERVER_URL'), json=email_body).json()
-        if data['prediction'] == "cfp":
+        if data['prediction'] == "cfp" and data['submission_deadline'] is not None:
             conferences_collection.insert_one(data)
     return None
 
