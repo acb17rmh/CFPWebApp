@@ -1,15 +1,12 @@
 $(document).ready(async () => {
-    console.log("Hello world!")
     getConferences()
 });
 
 function getConferences() {
-    console.log("In here!")
     $.ajax({
         url: '/get_conferences',
         type: 'GET',
         success: function (response) {
-            console.log(typeof (response))
             makeConferenceCards(response)
         },
         error: function (error) {
@@ -20,14 +17,37 @@ function getConferences() {
 
 function makeConferenceCards(conferences) {
     let deck = document.createElement('div');
-    deck.className = "row justify-content-center"
+    deck.className = "card-deck"
     deck.id = 'postsDeck';
 
-    conferences.forEach((element) => {
-        let col = document.createElement('div')
-        col.className = "col auto mb-3"
-        col.appendChild(createConferenceCard(element))
-        deck.appendChild(col)
+    conferences.reverse().forEach((element, index) => {
+        if (index % 2 === 0 && index !== 0) {
+            // wrap every 2 on sm devices
+            let smDiv = document.createElement("div")
+            smDiv.className = "w-100 d-none d-sm-block d-md-none"
+            deck.appendChild(smDiv)
+        }
+        if (index % 3 === 0 && index !== 0) {
+            // wrap every 3 on md devices
+            let mdDiv = document.createElement("div")
+            mdDiv.className = "w-100 d-none d-md-block d-lg-none"
+            deck.appendChild(mdDiv)
+        }
+        if (index % 3 === 0 && index !== 0) {
+            // wrap every 3 on lg devices
+            let lgDiv = document.createElement("div")
+            lgDiv.className = "w-100 d-none d-lg-block d-xl-none"
+            deck.appendChild(lgDiv)
+        }
+        if (index % 3 === 0 && index !== 0) {
+            // wrap every 4 on xl devices
+            let xlDiv = document.createElement("div")
+            xlDiv.className = "w-100 d-none d-xl-block"
+            deck.appendChild(xlDiv)
+        }
+
+
+        deck.appendChild(createConferenceCard(element))
     })
 
     $('#content').empty()
@@ -36,19 +56,31 @@ function makeConferenceCards(conferences) {
 
 function createConferenceCard(conference) {
     let card = document.createElement('div');
-    card.className = 'card mb-4 h-100';
-    card.style = "width: 24rem;"
+    card.className = 'card'
     card.id = conference._id;
 
     let cardBody = document.createElement('div');
     cardBody.className = 'card-body';
 
-    let title = document.createElement("h5")
+    let title = document.createElement("h7")
     let titleLink = document.createElement("a")
     titleLink.href = conference.url
     titleLink.textContent = conference.conference_name
+
     title.appendChild(titleLink)
     cardBody.appendChild(title)
+    let linebreak = document.createElement("br");
+    cardBody.appendChild(linebreak);
+
+    conference.keywords.forEach((phrase) => {
+        let keywordSpan = document.createElement("span")
+        keywordSpan.textContent = phrase;
+        keywordSpan.className = "badge badge-primary"
+        keywordSpan.style =
+        cardBody.append(keywordSpan)
+        cardBody.append(" ")
+
+    })
 
     let detailsList = document.createElement('ul')
     detailsList.className = "list-group list-group-flush"
@@ -85,9 +117,16 @@ function createConferenceCard(conference) {
         detailsList.appendChild(urlLI)
     }
 
+    let cardFooter = document.createElement('div')
+    cardFooter.className = "card-footer"
+    let footerTextP = document.createElement('small')
+    footerTextP.className = "text-muted"
+    footerTextP.textContent = "Added on " + new Date(conference.date_added).toLocaleString("en-GB", dateOptions)
+    cardFooter.appendChild(footerTextP)
 
     card.append(cardBody);
     card.append(detailsList);
+    card.append(cardFooter)
 
     return card;
 }
