@@ -57,20 +57,25 @@ function makeConferenceCards(conferences) {
 function createConferenceCard(conference) {
     let card = document.createElement('div');
     card.className = 'card'
+    card.style = "margin-bottom: 3%"
     card.id = conference._id;
 
     let cardBody = document.createElement('div');
     cardBody.className = 'card-body';
 
-    let title = document.createElement("h7")
+    let title = document.createElement("h5")
     let titleLink = document.createElement("a")
     titleLink.href = conference.url
     titleLink.textContent = conference.conference_name
 
     title.appendChild(titleLink)
     cardBody.appendChild(title)
-    let linebreak = document.createElement("br");
-    cardBody.appendChild(linebreak);
+
+    let locationSubtitle = document.createElement("h6")
+    locationSubtitle.textContent = conference.location
+    locationSubtitle.className = "card-subtitle mb-2 text-muted"
+    cardBody.appendChild(locationSubtitle)
+
 
     conference.keywords.forEach((phrase) => {
         let keywordSpan = document.createElement("span")
@@ -87,10 +92,6 @@ function createConferenceCard(conference) {
 
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
 
-    let locationLI = document.createElement('li')
-    locationLI.className = "list-group-item"
-    locationLI.textContent = "Location: " + conference.location
-    detailsList.appendChild(locationLI)
 
     let startDateLI = document.createElement('li')
     startDateLI.className = "list-group-item"
