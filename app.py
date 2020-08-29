@@ -329,7 +329,8 @@ def extract_urls(split_cfp_text):
             url = WEB_URL_REGEX.search(sent).group(0)
             if len(url) > 12 and "@" not in url:
                 urls.append(url)
-    print (urls)
+    if not urls:
+        return None
     return urls[0]
 
 def extract_keywords(input_text):
