@@ -43,10 +43,11 @@ def clear_old_conferences():
     conferences = conferences_collection.find({})
     for conference in conferences:
         conference_date = datetime.datetime.strptime(conference['submission_deadline'], '%a, %d %b %Y %H:%M:%S %Z').date()
-        print (conference_date)
+        start_date = datetime.datetime.strptime(conference['start_date'],  '%a, %d %b %Y %H:%M:%S %Z').date()
         if todays_date > conference_date:
             conferences_collection.delete_one({"submission_deadline": conference['submission_deadline']})
-
+        if todays_date > start_date:
+            conferences_collection.delete_one({"start_date": conference['start_date']})
 
 read_emails(os.environ.get('EMAIL_ADDRESS'), os.environ.get('EMAIL_PASSWORD'))
 predict_emails()
