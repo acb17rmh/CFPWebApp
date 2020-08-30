@@ -72,6 +72,7 @@ function createConferenceCard(conference) {
     titleLink.href = conference.url
     titleLink.textContent = conference.conference_name
 
+
     title.appendChild(titleLink)
     cardBody.appendChild(title)
 
