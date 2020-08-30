@@ -9,52 +9,29 @@
     {% include 'partials/navbar.html' %}
 
     <main role="main" class="container">
-        <h5>What is CFP Scanner?</h5>
-        <p>CFP Scanner uses NLP techniques to extract information from Call for Papers, saving you the time of
-        looking through long emails or finding relevant conferences manually. A Call for Paper can be contributed by
-        sending it via email to <a href="mailto: cfpscanner@mail.com">cfpscanner@mail.com</a>. Once contributed,
-        any relevant details will be extracted and then the event will be seen on the homepage.</p>
 
+        <div class="jumbotron">
+          <h1 class="display-4">Never miss a conference again.</h1>
+          <p class="lead">Get information on the conferences that interest you, without having to search for them.</p>
+        </div>
 
-
-        <h5>Interactive Demo</h5>
-        <p>See how CFP Scanner works behind the scenes:</p>
-        {% include 'partials/cfp_form.html' %}
-
-        {%  if prediction == 'cfp' %}
-            <table>
-                <tbody>
-                    <tr>
-                      <th scope="row">Conference Name</th>
-                      <td>{{ conference_name }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Location</th>
-                      <td>{{ location }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Start Date</th>
-                      <td>{{ start_date }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Submission Deadline</th>
-                      <td>{{ submission_deadline }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Notification Due</th>
-                      <td>{{ notification_due }}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">Final Version Deadline</th>
-                      <td>{{ final_version_deadline }}</td>
-                    </tr>
-              </tbody>
-            </table>
-        {% elif prediction == 'email' %}
-            <h4>Input data is not a Call for Paper</h4>
-        {% endif %}
+        <div class="container">
+            <div class="row">
+              <div class="col-md-6">
+                <h2>What is CFP Scanner?</h2>
+                <p>CFP Scanner is a community-powered database for storing information about upcoming conferences.
+                A Call for Paper can be contributed them sending it via email to
+                <a href="mailto: cfpscanner@mail.com">cfpscanner@mail.com</a>. Once contributed,
+                any relevant details will be extracted and then the event will be seen on the homepage.<p>
+              </div>
+              <div class="col-md-6">
+                <h2>How does it work?</h2>
+                <p>CFP Scanner uses NLP techniques to extract information from a Call for Papers message. Each email is first checked using a pre-trained model to
+                determine whether it contains information about a conference. If it does, a rule-based system is used to extract details and
+                populate a database. If it doesn't, it is discarded.</p>
+              </div>
+            </div>
     </main>
-    {% include 'partials/footer.html' %}
 </body>
 </html>
 

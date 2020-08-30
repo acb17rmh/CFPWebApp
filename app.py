@@ -62,26 +62,6 @@ def get_conferences():
 
     return jsonify(conferences)
 
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    if request.method == "POST":
-        input_text = request.form["input_text"]
-        response = requests.post(os.environ.get('SERVER_URL'), json={'data': input_text})
-        data = response.json()
-        print(data['prediction'])
-
-        if data['prediction'] == 'cfp':
-            return render_template("about.html", prediction="cfp", conference_name=data['conference_name'],
-                                   location=data['location'], start_date=data['start_date'],
-                                   submission_deadline=data['submission_deadline'],
-                                   notification_due=data['notification_due'],
-                                   final_version_deadline=data['final_version_deadline'],
-                                   url=data['url'], keywords=data['keywords'])
-        else:
-            return render_template("about.html", prediction="email")
-
-
 @app.route('/api', methods=['POST'])
 def api_predict():
     input_data = request.get_json()

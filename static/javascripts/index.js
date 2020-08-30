@@ -4,6 +4,12 @@ let icsFormatter=function(){"use strict";if(!(navigator.userAgent.indexOf("MSIE"
 
 $(document).ready(async () => {
     getConferences()
+
+    document.getElementById("newEntryForm").addEventListener("click", (function() {
+        console.log("Button was clicked!")
+        postConference();
+    }));
+
 });
 
 function getConferences() {
@@ -18,6 +24,24 @@ function getConferences() {
         }
     });
 }
+
+function postConference(text) {
+    $.ajax({
+        method: 'POST',
+        url: '/api/',
+        data: {content: text},
+        dataType : "json",
+        success: function (data) {
+            console.log(data)
+            let card = createConferenceCard(data)
+            document.getElementById("demo_results").appendChild(card)
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+};
+
 
 function makeConferenceCards(conferences) {
     let deck = document.createElement('div');
@@ -133,7 +157,7 @@ function createConferenceCard(conference) {
     let calDownloadLI = document.createElement('li')
     calDownloadLI.className = "list-group-item"
     let calDownloadLink = document.createElement("a")
-    calDownloadLink.className = "btn btn-primary btn-lg btn-block"
+    calDownloadLink.className = "btn btn-primary btn-lg btn-block text-light"
     calDownloadLink.textContent = "Add to Calendar"
     calDownloadLink.addEventListener("click", function(event) {
         let filename = "calendar_" + conference._id;
@@ -154,8 +178,8 @@ function createConferenceCard(conference) {
     card.append(detailsList);
     card.append(cardFooter)
 
-
-
     return card;
 }
+
+
 

@@ -4,15 +4,24 @@
     {% include 'partials/header.html' %}
     <meta charset="UTF-8">
     <title>CFP Scanner</title>
-    <script type="module" src="/static/javascripts/ics.deps.min.js.js"></script>
     <script src="/static/javascripts/index.js"></script>
 
 </head>
 <body>
     {% include 'partials/navbar.html' %}
     <main role="main" class="container">
-        <h1>CFP Scanner</h1>
-        <p>To contribute to the calendar, forward a Call for Paper to <a href="mailto: cfpscanner@mail.com">cfpscanner@mail.com</a></p>
+
+        <section class="jumbotron text-center">
+            <div class="container">
+              <h1 class="jumbotron-heading">CFP Scanner</h1>
+              <p class="lead text-muted">Quickly get relevant information about upcoming conferences, contributed by members of the community.</p>
+              <p>
+                <a href="mailto:cfpscanner@mail.com?subject=CFP%20submission" class="btn btn-primary my-2">Submit a CFP</a>
+                <a href="/about" class="btn btn-secondary my-2">Learn more</a>
+              </p>
+            </div>
+      </section>
+
     </main>
 
     <div id="content" class="container">
