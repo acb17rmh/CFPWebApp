@@ -1,0 +1,21 @@
+{
+  "name": "CFP Scanner",
+  "short_name": "CFP Scanner",
+  "theme_color": "#007bff",
+  "background_color": "#ffffff",
+  "icons": [
+      {
+        "src": "/static/images/android-chrome-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/static/images/android-chrome-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}

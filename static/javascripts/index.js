@@ -3,13 +3,15 @@
 let icsFormatter=function(){"use strict";if(!(navigator.userAgent.indexOf("MSIE")>-1&&-1==navigator.userAgent.indexOf("MSIE 10"))){let t=-1!==navigator.appVersion.indexOf("Win")?"\r\n":"\n",e=[],n=["BEGIN:VCALENDAR","VERSION:2.0"].join(t),i=t+"END:VCALENDAR";return{events:function(){return e},calendar:function(){return n+t+e.join(t)+i},addEvent:function(n,i,r,o,s){if(void 0===n||void 0===i||void 0===r||void 0===o||void 0===s)return!1;let a=new Date(o),c=new Date(s),u=("0000"+a.getFullYear().toString()).slice(-4),g=("00"+(a.getMonth()+1).toString()).slice(-2),d=("00"+a.getDate().toString()).slice(-2),l=("00"+a.getHours().toString()).slice(-2),E=("00"+a.getMinutes().toString()).slice(-2),S=("00"+a.getMinutes().toString()).slice(-2),f=("0000"+c.getFullYear().toString()).slice(-4),A=("00"+(c.getMonth()+1).toString()).slice(-2),v=("00"+c.getDate().toString()).slice(-2),N=("00"+c.getHours().toString()).slice(-2),T=("00"+c.getMinutes().toString()).slice(-2),D=("00"+c.getMinutes().toString()).slice(-2),p="",M="";E+S+T+D!==0&&(p="T"+l+E+S,M="T"+N+T+D);let m=["BEGIN:VEVENT","CLASS:PUBLIC","DESCRIPTION:"+i,"DTSTART;VALUE=DATE:"+(u+g+d+p),"DTEND;VALUE=DATE:"+(f+A+v+M),"LOCATION:"+r,"SUMMARY;LANGUAGE=en-us:"+n,"TRANSP:TRANSPARENT","END:VEVENT"].join(t);return e.push(m),m},download:function(r,o){if(e.length<1)return!1;o=void 0!==o?o:".ics",r=void 0!==r?r:"calendar";let s=n+t+e.join(t)+i;window.open("data:text/calendar;charset=utf8,"+escape(s))}}}console.log("Unsupported Browser")};"function"==typeof define&&define.amd?define("icsFormatter",[],function(){return icsFormatter()}):"object"==typeof module&&module.exports?module.exports=icsFormatter():this.myModule=icsFormatter();
 
 $(document).ready(async () => {
+    initServiceWorker()
     getConferences()
 
-    document.getElementById("newEntryForm").addEventListener("click", (function() {
+    if (document.getElementById("newEntryForm")) {
+       document.getElementById("newEntryForm").addEventListener("click", (function() {
         console.log("Button was clicked!")
         postConference();
-    }));
-
+        }));
+    }
 });
 
 function getConferences() {
@@ -179,6 +181,25 @@ function createConferenceCard(conference) {
     card.append(cardFooter)
 
     return card;
+}
+
+/**
+ * Registers the ServiceWorker for our PWA, which caches the shell
+ * of the PWA so it can be loaded offline.
+ *
+ * @author Richard Hindes
+ */
+
+// Initialises the service worker used to cache the shell of the PWA.
+function initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+            .register('../service-worker.js')
+            .then(function() { console.log('ServiceWorker Registered');
+            }, function(err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    }
 }
 
 

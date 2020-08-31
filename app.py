@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory, make_response
 
 import os
 import dateparser
@@ -51,6 +51,9 @@ def index():
 def about():
     return render_template("about.html", data=None)
 
+@app.route('/service-worker.js')
+def sw():
+    return app.send_static_file('service-worker.js')
 
 @app.route('/get_conferences', methods=['GET'])
 def get_conferences():
@@ -85,6 +88,15 @@ def api_predict():
                        "keywords": extract_keywords(input_text),
                        "date_added": datetime.date.today()}
     return jsonify(output_data)
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error_pages/404.html'), 404
+
+@app.errorhandler(500)
+def not_found(error):
+    return render_template('error_pages/500.html'), 500
+
 
 
 def extract_locations(doc):
@@ -332,4 +344,4 @@ def extract_keywords(input_text):
     return [x[0] for x in Counter(keywords).most_common(5)]
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
