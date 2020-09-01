@@ -325,7 +325,7 @@ def extract_urls(split_cfp_text):
     for sent in split_cfp_text:
         if WEB_URL_REGEX.search(sent):
             url = WEB_URL_REGEX.search(sent).group(0)
-            if len(url) > 12 and "@" not in url:
+            if len(url) > 12 and "@" not in url and "jiscmail" not in url:
                 urls.append(url)
     if not urls:
         return None

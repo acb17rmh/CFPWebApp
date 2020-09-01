@@ -6,10 +6,12 @@ $(document).ready(async () => {
     initServiceWorker()
     getConferences()
 
-    if (document.getElementById("newEntryForm")) {
-       document.getElementById("newEntryForm").addEventListener("click", (function() {
-        console.log("Button was clicked!")
-        postConference();
+    if (document.getElementById("submit_demo_button")) {
+        console.log("In here!")
+       document.getElementById("submit_demo_button").addEventListener("click", (function() {
+        let text = $("#input_text").val()
+        console.log(text);
+        postConference(text);
         }));
     }
 });
@@ -28,11 +30,14 @@ function getConferences() {
 }
 
 function postConference(text) {
+    let data = {"content": text}
+    console.log(data)
     $.ajax({
         method: 'POST',
-        url: '/api/',
-        data: {content: text},
+        url: '/api',
+        data: data,
         dataType : "json",
+        contentType: "application/x-www-form-urlencoded",
         success: function (data) {
             console.log(data)
             let card = createConferenceCard(data)
