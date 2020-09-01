@@ -128,7 +128,6 @@ function createConferenceCard(conference) {
 
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
 
-
     let startDateLI = document.createElement('li')
     startDateLI.className = "list-group-item"
     startDateLI.textContent = "Start Date: " + new Date(conference.start_date).toLocaleString("en-GB", dateOptions)

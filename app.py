@@ -78,6 +78,8 @@ def api_predict():
         split_cfp_text = preprocess_text(input_text)
         date_to_sentence = extract_dates(split_cfp_text)
         output_data = {'prediction': 'cfp',
+                       'input_text': input_text,
+                       'date_to_sentence': date_to_sentence,
                        'conference_name': extract_conference_name(split_cfp_text),
                        'location': extract_locations(doc),
                        'start_date': get_start_date(date_to_sentence),
@@ -172,7 +174,7 @@ def extract_conference_name(split_cfp_text):
     return highest_score
 
 
-def preprocess_text(text):
+def preprocess_text(input_text):
     """
     Method to preprocess text for information extraction. Text is split on newlines and commas,
     and any conference names split over 2 lines are merged into one.
@@ -182,11 +184,14 @@ def preprocess_text(text):
         list: a list of preprocessed sentences.
     """
 
-    text = text.replace('. ', '\n')
+    text = input_text.replace('. ', '\n')
     text = text.replace('? ', '\n')
     text = text.replace('! ', '\n')
     text = text.splitlines()
     text = [substring for substring in text if substring is not ""]
+    if "forwarded message" in input_text.lower():
+        text = text[5:]
+
     return text
 
 
