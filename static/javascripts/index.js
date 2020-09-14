@@ -18,8 +18,11 @@ $(document).ready(async () => {
 
 function getConferences() {
     $.ajax({
-        url: '/get_conferences',
+        url: '/api/v1/resources/conferences/all',
         type: 'GET',
+        data: {'number': "100",
+               'sort_by': '_id',
+               'get_expired': "True"},
         success: function (response) {
             makeConferenceCards(response)
         },
@@ -34,7 +37,7 @@ function postConference(text) {
     console.log(data)
     $.ajax({
         method: 'POST',
-        url: '/api',
+        url: '/api/v1/predict',
         data: data,
         dataType : "json",
         contentType: "application/x-www-form-urlencoded",

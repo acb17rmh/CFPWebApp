@@ -54,18 +54,59 @@ def about():
 def sw():
     return app.send_static_file('service-worker.js')
 
-@app.route('/get_conferences', methods=['GET'])
-def get_conferences():
+@app.route('/api/v1/resources/conferences/all', methods=['GET'])
+def api_all():
+    """
+    Gets all the conferences from the database.
+    Returns:
+         a list of JSON objects representing conferences
+    """
+
+    if not request.args.get('number'):
+        number_of_conferences = 1000
+    else:
+        number_of_conferences = int(request.args.get('number'))
+
+    if not request.args.get('sort_by'):
+        sort_by = "_id"
+    else:
+        sort_by = request.args.get('sort_by')
+
+    if not request.args.get('get_expired'):
+        get_expired = True
+    else:
+        get_expired = request.args.get('get_expired') == 'True'
+
+    todays_date = datetime.date.today()
+
+    print (number_of_conferences)
+    print (sort_by)
+    print (get_expired)
+    print (todays_date)
+
+
     conferences = []
-    data = conferences_collection.find({})
+    data = conferences_collection.find({}, limit=number_of_conferences).sort([(sort_by, 1)])
     for conference in data:
         conference['_id'] = str(conference['_id'])
-        conferences.append(conference)
+
+        if not get_expired:
+            conference_date = datetime.datetime.strptime(conference['submission_deadline'],
+                                                         '%a, %d %b %Y %H:%M:%S %Z').date()
+            if todays_date < conference_date:
+                conferences.append(conference)
+        else:
+            conferences.append(conference)
 
     return jsonify(conferences)
 
-@app.route('/api', methods=['POST'])
+@app.route('/api/v1/predict', methods=['POST'])
 def api_predict():
+    """
+    Given an input text, classifies it and extracts any relevant information
+    Returns:
+        a JSON object representing a conference
+    """
     input_data = request.get_json()
     vectorized_data = vectorizer.transform(list(input_data.values()))
     prediction = classifier.predict(vectorized_data)
@@ -90,6 +131,8 @@ def api_predict():
                        "date_added": datetime.date.today()}
     return jsonify(output_data)
 
+
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template('error_pages/404.html'), 404
@@ -97,8 +140,6 @@ def not_found(error):
 @app.errorhandler(500)
 def not_found(error):
     return render_template('error_pages/500.html'), 500
-
-
 
 def extract_locations(doc):
     """
