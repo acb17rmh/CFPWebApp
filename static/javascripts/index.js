@@ -91,7 +91,13 @@ function makeConferenceCards(conferences) {
 
 function createConferenceCard(conference) {
     let card = document.createElement('div');
-    card.className = 'card'
+
+    if (new Date(conference.submission_deadline) < new Date()) {
+        card.className = 'card grey-card'
+    } else {
+        card.className = 'card'
+    }
+
     card.style = "margin-bottom: 3%"
     card.id = conference._id;
 

@@ -33,3 +33,8 @@ body {
 .page-wrap {
     min-height: 100vh;
 }
+
+.grey-card {
+  background-color: rgba(245, 245, 245, 0.4);
+  opacity: .4;
+}
