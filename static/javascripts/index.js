@@ -153,25 +153,37 @@ function createConferenceCard(conference) {
         detailsList.appendChild(urlLI)
     }
 
-    let cal = icsFormatter()
-    cal.addEvent('Submission deadline: ' + conference.conference_name, 'Remember to submit your paper!',
+    let submissionCal = icsFormatter()
+    submissionCal.addEvent('Submission deadline: ' + conference.conference_name, 'Remember to submit your paper!',
         conference.url, new Date(conference.submission_deadline), new Date(conference.submission_deadline));
-
-    let nextDay = new Date(conference.start_date)
-    cal.addEvent('CONFERENCE: ' + conference.conference_name, "", conference.location,
-        new Date(conference.start_date), nextDay.setDate(new Date(conference.start_date).getDate() + 1))
-    let calDownloadLI = document.createElement('li')
-    calDownloadLI.className = "list-group-item"
-    let calDownloadLink = document.createElement("a")
-    calDownloadLink.className = "btn btn-primary btn-lg btn-block text-light"
-    calDownloadLink.textContent = "Add to Calendar"
-    calDownloadLink.addEventListener("click", function(event) {
-        let filename = "calendar_" + conference._id;
-        cal.download()
+    let submissionCalDownloadLI = document.createElement('li')
+    submissionCalDownloadLI.className = "list-group-item"
+    let submissionCalDownloadLink = document.createElement("a")
+    submissionCalDownloadLink.className = "btn btn-primary btn-lg btn-block text-light"
+    submissionCalDownloadLink.textContent = "📅 Add Submission Deadline"
+    submissionCalDownloadLink.addEventListener("click", function(event) {
+        let filename = "calendar_submission_" + conference._id + ".ics";
+        submissionCal.download()
     })
 
-    calDownloadLI.appendChild(calDownloadLink)
-    detailsList.append(calDownloadLI)
+    submissionCalDownloadLI.appendChild(submissionCalDownloadLink)
+    detailsList.append(submissionCalDownloadLI)
+
+    let conferenceCal = icsFormatter()
+    let nextDay = new Date(conference.start_date)
+    conferenceCal.addEvent('CONFERENCE: ' + conference.conference_name, "", conference.location,
+        new Date(conference.start_date), nextDay.setDate(new Date(conference.start_date).getDate() + 1))
+    let conferenceCalDownloadLI = document.createElement('li')
+    conferenceCalDownloadLI.className = "list-group-item"
+    let conferenceCalDownloadLink = document.createElement("a")
+    conferenceCalDownloadLink.className = "btn btn-primary btn-lg btn-block text-light"
+    conferenceCalDownloadLink.textContent = "📅 Add Conference Date"
+    conferenceCalDownloadLink.addEventListener("click", function(event) {
+        let filename = "calendar_conf_" + conference._id + ".ics";
+        conferenceCal.download()
+    })
+
+    submissionCalDownloadLI.appendChild(conferenceCalDownloadLink)
 
     let cardFooter = document.createElement('div')
     cardFooter.className = "card-footer"

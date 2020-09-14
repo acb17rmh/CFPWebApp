@@ -5,7 +5,6 @@ import dateparser
 import re
 import en_core_web_sm
 import pickle
-import requests
 import pymongo
 from collections import Counter
 import datetime
@@ -188,7 +187,7 @@ def preprocess_text(input_text):
     text = text.replace('? ', '\n')
     text = text.replace('! ', '\n')
     text = text.splitlines()
-    text = [substring for substring in text if substring is not ""]
+    text = [substring for substring in text if substring != ""]
     if "forwarded message" in input_text.lower():
         text = text[5:]
 
