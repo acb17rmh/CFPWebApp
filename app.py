@@ -77,7 +77,7 @@ def api_all():
     else:
         get_expired = request.args.get('get_expired') == 'True'
 
-    todays_date = datetime.date.today()
+    todays_date = datetime.datetime.today()
 
     print (number_of_conferences)
     print (sort_by)
@@ -91,9 +91,7 @@ def api_all():
         conference['_id'] = str(conference['_id'])
 
         if not get_expired:
-            conference_date = datetime.datetime.strptime(conference['submission_deadline'],
-                                                         '%a, %d %b %Y %H:%M:%S %Z').date()
-            if todays_date < conference_date:
+            if todays_date < conference['submission_deadline']:
                 conferences.append(conference)
         else:
             conferences.append(conference)

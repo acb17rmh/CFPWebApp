@@ -38,6 +38,14 @@ def predict_emails():
     for email_body in emails:
         data = requests.post(os.environ.get('SERVER_URL'), json=email_body).json()
         if data['prediction'] == "cfp" and data['submission_deadline'] is not None and data['start_date'] is not None:
+            data['submission_deadline'] = datetime.datetime.strptime(data['submission_deadline'], '%a, %d %b %Y %H:%M:%S %Z')
+            data['start_date'] = datetime.datetime.strptime(data['start_date'], '%a, %d %b %Y %H:%M:%S %Z')
+            data['date_added'] = datetime.datetime.strptime(data['date_added'], '%a, %d %b %Y %H:%M:%S %Z')
+
+            if data['notification_due']:
+                data['notification_due'] = datetime.datetime.strptime(data['notification_due'], '%a, %d %b %Y %H:%M:%S %Z')
+            if data['final_version_deadline']:
+                data['final_version_deadline'] = datetime.datetime.strptime(data['final_version_deadline'], '%a, %d %b %Y %H:%M:%S %Z')
             conferences_collection.insert_one(data)
     return None
 
@@ -45,12 +53,9 @@ def predict_emails():
 def clear_old_conferences():
     conferences = conferences_collection.find({})
     for conference in conferences:
-        conference_date = datetime.datetime.strptime(conference['submission_deadline'],
-                                                     '%a, %d %b %Y %H:%M:%S %Z').date()
-        start_date = datetime.datetime.strptime(conference['start_date'], '%a, %d %b %Y %H:%M:%S %Z').date()
-        if todays_date > conference_date:
+        if todays_date > conference['submission_deadline']:
             conferences_collection.delete_one({"submission_deadline": conference['submission_deadline']})
-        if todays_date > start_date:
+        if todays_date > conference['start_date']:
             conferences_collection.delete_one({"start_date": conference['start_date']})
 
 
