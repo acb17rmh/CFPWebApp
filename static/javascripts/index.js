@@ -6,20 +6,37 @@ $(document).ready(async () => {
     initServiceWorker()
 
     $("#dropdownMenuButton").text("Only show current conferences")
-    getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "False"})
-
+    let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False"}
+    getConferences(conferenceOptions)
 
     document.getElementById('showAll').addEventListener("click", function() {
         console.log("Show All clicked");
-        $("#dropdownMenuButton").text("Show previous conferences as well")
-        getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "True"})
+        $("#showOptionsDropdownMenuButton").text("Show previous conferences as well")
+        conferenceOptions['get_expired'] = "True";
+        getConferences(conferenceOptions)
     }, false)
 
     document.getElementById('showCurrent').addEventListener("click", function() {
         console.log("Show Current clicked");
-        $("#dropdownMenuButton").text("Only show current conferences")
-        getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "False"})
+        $("#showOptionsDropdownMenuButton").text("Only show current conferences")
+        conferenceOptions['get_expired'] = "False";
+        getConferences(conferenceOptions)
     }, false)
+
+    document.getElementById('sortBySubmissionDeadline').addEventListener("click", function() {
+        console.log("Show All clicked");
+        $("#sortByDropdownMenuButton").text("Sort by submission deadline")
+        conferenceOptions['sort_by'] = "submission_deadline";
+        getConferences(conferenceOptions)
+    }, false)
+
+    document.getElementById('sortByStartDate').addEventListener("click", function() {
+        console.log("Show Current clicked");
+        $("#sortByDropdownMenuButton").text("Sort by conference start date")
+        conferenceOptions['sort_by'] = "start_date";
+        getConferences(conferenceOptions)
+    }, false)
+
 
 
 });

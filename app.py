@@ -86,7 +86,7 @@ def api_all():
 
 
     conferences = []
-    data = conferences_collection.find({}, limit=number_of_conferences).sort([(sort_by, 1)])
+    data = conferences_collection.find({}, limit=number_of_conferences).sort([(sort_by, -1)])
     for conference in data:
         conference['_id'] = str(conference['_id'])
 
