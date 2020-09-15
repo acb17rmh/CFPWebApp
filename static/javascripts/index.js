@@ -4,25 +4,32 @@ let icsFormatter=function(){"use strict";if(!(navigator.userAgent.indexOf("MSIE"
 
 $(document).ready(async () => {
     initServiceWorker()
-    getConferences()
 
-    if (document.getElementById("submit_demo_button")) {
-        console.log("In here!")
-       document.getElementById("submit_demo_button").addEventListener("click", (function() {
-        let text = $("#input_text").val()
-        console.log(text);
-        postConference(text);
-        }));
-    }
+    $("#dropdownMenuButton").text("Only show current conferences")
+    getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "False"})
+
+
+    document.getElementById('showAll').addEventListener("click", function() {
+        console.log("Show All clicked");
+        $("#dropdownMenuButton").text("Show previous conferences as well")
+        getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "True"})
+    }, false)
+
+    document.getElementById('showCurrent').addEventListener("click", function() {
+        console.log("Show Current clicked");
+        $("#dropdownMenuButton").text("Only show current conferences")
+        getConferences({'number': "100", 'sort_by': '_id', 'get_expired': "False"})
+    }, false)
+
+
 });
 
-function getConferences() {
+function getConferences(options) {
+    $("#content").empty();
     $.ajax({
         url: '/api/v1/resources/conferences/all',
         type: 'GET',
-        data: {'number': "100",
-               'sort_by': '_id',
-               'get_expired': "True"},
+        data: options,
         success: function (response) {
             makeConferenceCards(response)
         },

@@ -38,3 +38,7 @@ body {
   background-color: rgba(245, 245, 245, 0.4);
   opacity: .4;
 }
+
+#conferenceFilters {
+  padding-bottom: 2%;
+}
