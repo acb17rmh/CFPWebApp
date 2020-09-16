@@ -5,7 +5,6 @@ let icsFormatter=function(){"use strict";if(!(navigator.userAgent.indexOf("MSIE"
 $(document).ready(async () => {
     initServiceWorker()
 
-
     $("#showOptionsDropdownMenuButton").text("Only show current conferences")
     $("#sortByDropdownMenuButton").text("Sort by submission deadline")
     let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""}
@@ -128,7 +127,7 @@ function createConferenceCard(conference) {
     if (new Date(conference.submission_deadline) < new Date()) {
         card.className = 'card grey-card'
     } else {
-        card.className = 'card'
+        card.className = 'card current-card'
     }
 
     card.style = "margin-bottom: 3%"
@@ -156,11 +155,12 @@ function createConferenceCard(conference) {
         let keywordSpan = document.createElement("span")
         keywordSpan.textContent = phrase;
         keywordSpan.className = "badge badge-primary"
-        keywordSpan.style =
         cardBody.append(keywordSpan)
         cardBody.append(" ")
 
     })
+
+    cardBody.append(createTwitterButton(conference))
 
     let detailsList = document.createElement('ul')
     detailsList.className = "list-group list-group-flush"
@@ -236,6 +236,25 @@ function createConferenceCard(conference) {
     card.append(cardFooter)
 
     return card;
+}
+
+function createTwitterButton(conference) {
+    // <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="Hello world!" data-hashtags="cfp-scanner" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    let buttonA = document.createElement('a')
+    buttonA.className = "twitter-share-button"
+    buttonA.href = "https://twitter.com/share?ref_src=twsrc%5Etfw"
+    let conferenceInfo = `Upcoming conference: ${conference.conference_name} in ${conference.location} begins on ${conference.start_date}. Submit papers by ${conference.submission_deadline} via ${conference.url}. Find more conferences at`
+    buttonA.setAttribute('data-text', conferenceInfo)
+    buttonA.setAttribute('data-hashtags', 'cfp_scanner')
+    buttonA.setAttribute('data-show-count', 'false')
+
+    let twitterScript = document.createElement('script')
+    twitterScript.setAttribute("async", "")
+    twitterScript.setAttribute("src", "https://platform.twitter.com/widgets.js")
+    twitterScript.setAttribute("charset", "utf-8")
+
+    buttonA.append(twitterScript)
+    return buttonA;
 }
 
 /**
