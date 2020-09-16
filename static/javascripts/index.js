@@ -243,7 +243,7 @@ function createTwitterButton(conference) {
     let buttonA = document.createElement('a')
     buttonA.className = "twitter-share-button"
     buttonA.href = "https://twitter.com/share?ref_src=twsrc%5Etfw"
-    let conferenceInfo = `Upcoming conference: ${conference.conference_name} in ${conference.location} begins on ${conference.start_date}. Submit papers by ${conference.submission_deadline} via ${conference.url}. Find more conferences at`
+    let conferenceInfo = `Upcoming conference: ${conference.conference_name} in ${conference.location} begins on ${new Date(conference.start_date).toDateString()}. Submit papers by ${new Date(conference.submission_deadline).toDateString()} via ${conference.url}. Find more conferences at`
     buttonA.setAttribute('data-text', conferenceInfo)
     buttonA.setAttribute('data-hashtags', 'cfp_scanner')
     buttonA.setAttribute('data-show-count', 'false')
