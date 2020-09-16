@@ -77,11 +77,17 @@ def api_all():
     else:
         get_expired = request.args.get('get_expired') == 'True'
 
+    if not request.args.get('query'):
+        query = ""
+    else:
+        query = request.args.get('query')
+
     todays_date = datetime.datetime.today()
 
     print (number_of_conferences)
     print (sort_by)
     print (get_expired)
+    print (query)
     print (todays_date)
 
 
@@ -90,11 +96,16 @@ def api_all():
     for conference in data:
         conference['_id'] = str(conference['_id'])
 
+        if query != "":
+            if query.lower() not in conference['conference_name'].lower() and query.lower() not in conference['location'].lower() and query.lower() not in conference['keywords']:
+                continue
+
+
         if not get_expired:
-            if todays_date < conference['submission_deadline']:
-                conferences.append(conference)
-        else:
-            conferences.append(conference)
+            if todays_date > conference['submission_deadline']:
+                continue
+
+        conferences.append(conference)
 
     return jsonify(conferences)
 

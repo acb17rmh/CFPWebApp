@@ -8,7 +8,7 @@ $(document).ready(async () => {
 
     $("#showOptionsDropdownMenuButton").text("Only show current conferences")
     $("#sortByDropdownMenuButton").text("Sort by submission deadline")
-    let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False"}
+    let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""}
     getConferences(conferenceOptions)
 
     document.getElementById('showAll').addEventListener("click", function() {
@@ -35,6 +35,13 @@ $(document).ready(async () => {
         getConferences(conferenceOptions)
     }, false)
 
+    document.getElementById("conferenceSearch").oninput = searchHandler;
+
+    function searchHandler(e) {
+        console.log(this.value)
+        conferenceOptions['query'] = this.value;
+        getConferences(conferenceOptions)
+    }
 
 
 });

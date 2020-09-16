@@ -37,7 +37,7 @@ def predict_emails():
      """
     for email_body in emails:
         data = requests.post(os.environ.get('SERVER_URL'), json=email_body).json()
-        if data['prediction'] == "cfp" and data['submission_deadline'] is not None and data['start_date'] is not None:
+        if data['prediction'] == "cfp" and data['submission_deadline'] is not None and data['start_date'] is not None and data['location'] is not None:
             data['submission_deadline'] = datetime.datetime.strptime(data['submission_deadline'], '%a, %d %b %Y %H:%M:%S %Z')
             data['start_date'] = datetime.datetime.strptime(data['start_date'], '%a, %d %b %Y %H:%M:%S %Z')
             data['date_added'] = datetime.datetime.strptime(data['date_added'], '%a, %d %b %Y %H:%M:%S %Z')
