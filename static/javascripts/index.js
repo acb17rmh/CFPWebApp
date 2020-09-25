@@ -2,12 +2,14 @@
 // Free to reproduce here under terms of the MIT License, https://github.com/nwcell/ics.js/blob/master/LICENSE
 let icsFormatter=function(){"use strict";if(!(navigator.userAgent.indexOf("MSIE")>-1&&-1==navigator.userAgent.indexOf("MSIE 10"))){let t=-1!==navigator.appVersion.indexOf("Win")?"\r\n":"\n",e=[],n=["BEGIN:VCALENDAR","VERSION:2.0"].join(t),i=t+"END:VCALENDAR";return{events:function(){return e},calendar:function(){return n+t+e.join(t)+i},addEvent:function(n,i,r,o,s){if(void 0===n||void 0===i||void 0===r||void 0===o||void 0===s)return!1;let a=new Date(o),c=new Date(s),u=("0000"+a.getFullYear().toString()).slice(-4),g=("00"+(a.getMonth()+1).toString()).slice(-2),d=("00"+a.getDate().toString()).slice(-2),l=("00"+a.getHours().toString()).slice(-2),E=("00"+a.getMinutes().toString()).slice(-2),S=("00"+a.getMinutes().toString()).slice(-2),f=("0000"+c.getFullYear().toString()).slice(-4),A=("00"+(c.getMonth()+1).toString()).slice(-2),v=("00"+c.getDate().toString()).slice(-2),N=("00"+c.getHours().toString()).slice(-2),T=("00"+c.getMinutes().toString()).slice(-2),D=("00"+c.getMinutes().toString()).slice(-2),p="",M="";E+S+T+D!==0&&(p="T"+l+E+S,M="T"+N+T+D);let m=["BEGIN:VEVENT","CLASS:PUBLIC","DESCRIPTION:"+i,"DTSTART;VALUE=DATE:"+(u+g+d+p),"DTEND;VALUE=DATE:"+(f+A+v+M),"LOCATION:"+r,"SUMMARY;LANGUAGE=en-us:"+n,"TRANSP:TRANSPARENT","END:VEVENT"].join(t);return e.push(m),m},download:function(r,o){if(e.length<1)return!1;o=void 0!==o?o:".ics",r=void 0!==r?r:"calendar";let s=n+t+e.join(t)+i;window.open("data:text/calendar;charset=utf8,"+escape(s))}}}console.log("Unsupported Browser")};"function"==typeof define&&define.amd?define("icsFormatter",[],function(){return icsFormatter()}):"object"==typeof module&&module.exports?module.exports=icsFormatter():this.myModule=icsFormatter();
 
+
+let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""}
+
 $(document).ready(async () => {
     initServiceWorker()
 
     $("#showOptionsDropdownMenuButton").text("Only show current conferences")
     $("#sortByDropdownMenuButton").text("Sort by submission deadline")
-    let conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""}
     getConferences(conferenceOptions)
 
     document.getElementById('showAll').addEventListener("click", function() {
@@ -34,6 +36,14 @@ $(document).ready(async () => {
         getConferences(conferenceOptions)
     }, false)
 
+    document.getElementById('resetFilters').addEventListener("click", function() {
+        conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""};
+        getConferences(conferenceOptions)
+        if (document.getElementById("tagSubtitle")) {
+            document.getElementById("tagSubtitle").remove()
+        }
+    }, false)
+
     document.getElementById("conferenceSearch").oninput = searchHandler;
 
     function searchHandler(e) {
@@ -41,8 +51,6 @@ $(document).ready(async () => {
         conferenceOptions['query'] = this.value;
         getConferences(conferenceOptions)
     }
-
-
 });
 
 function getConferences(options) {
@@ -145,6 +153,8 @@ function createConferenceCard(conference) {
     title.appendChild(titleLink)
     cardBody.appendChild(title)
 
+    cardBody.append(createTwitterButton(conference))
+
     let locationSubtitle = document.createElement("h6")
     locationSubtitle.textContent = conference.location
     locationSubtitle.className = "card-subtitle mb-2 text-muted"
@@ -155,12 +165,22 @@ function createConferenceCard(conference) {
         let keywordSpan = document.createElement("span")
         keywordSpan.textContent = phrase;
         keywordSpan.className = "badge badge-primary"
+        keywordSpan.addEventListener("click", function() {
+            conferenceOptions['query'] = this.textContent;
+            getConferences(conferenceOptions)
+            if (document.getElementById("tagSubtitle")) {
+                document.getElementById("tagSubtitle").remove()
+            }
+            let tagSubtitle = document.createElement("h5")
+            tagSubtitle.setAttribute('id', 'tagSubtitle')
+            tagSubtitle.className = "text-muted"
+            tagSubtitle.textContent = `Showing conferences with the tag '${this.textContent}':`
+            document.getElementById("conferenceFilters").appendChild(tagSubtitle)
+        })
         cardBody.append(keywordSpan)
         cardBody.append(" ")
 
     })
-
-    cardBody.append(createTwitterButton(conference))
 
     let detailsList = document.createElement('ul')
     detailsList.className = "list-group list-group-flush"
@@ -239,7 +259,6 @@ function createConferenceCard(conference) {
 }
 
 function createTwitterButton(conference) {
-    // <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-text="Hello world!" data-hashtags="cfp-scanner" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     let buttonA = document.createElement('a')
     buttonA.className = "twitter-share-button"
     buttonA.href = "https://twitter.com/share?ref_src=twsrc%5Etfw"
@@ -257,13 +276,6 @@ function createTwitterButton(conference) {
     return buttonA;
 }
 
-/**
- * Registers the ServiceWorker for our PWA, which caches the shell
- * of the PWA so it can be loaded offline.
- *
- * @author Richard Hindes
- */
-
 // Initialises the service worker used to cache the shell of the PWA.
 function initServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -275,6 +287,5 @@ function initServiceWorker() {
             });
     }
 }
-
 
 
