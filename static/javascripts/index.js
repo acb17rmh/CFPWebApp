@@ -39,6 +39,8 @@ $(document).ready(async () => {
     document.getElementById('resetFilters').addEventListener("click", function() {
         conferenceOptions = {'number': "100", 'sort_by': 'submission_deadline', 'get_expired': "False", 'query': ""};
         getConferences(conferenceOptions)
+        $("#showOptionsDropdownMenuButton").text("Only show current conferences")
+        $("#sortByDropdownMenuButton").text("Sort by submission deadline")
         if (document.getElementById("tagSubtitle")) {
             document.getElementById("tagSubtitle").remove()
         }
