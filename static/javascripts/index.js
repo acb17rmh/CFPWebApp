@@ -194,6 +194,13 @@ function createConferenceCard(conference) {
     startDateLI.textContent = "Start Date: " + new Date(conference.start_date).toLocaleString("en-GB", dateOptions)
     detailsList.appendChild(startDateLI)
 
+    if (conference.end_date) {
+        let endDateLI = document.createElement('li')
+        endDateLI.className = "list-group-item"
+        endDateLI.textContent = "End Date: " + new Date(conference.end_date).toLocaleString("en-GB", dateOptions)
+        detailsList.appendChild(endDateLI)
+    }
+
     let submissionDeadlineLI = document.createElement('li')
     submissionDeadlineLI.className = "list-group-item"
     submissionDeadlineLI.textContent = "Submission Deadline: " + new Date(conference.submission_deadline).toLocaleString("en-GB", dateOptions)

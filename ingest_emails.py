@@ -41,7 +41,8 @@ def predict_emails():
             data['submission_deadline'] = datetime.datetime.strptime(data['submission_deadline'], '%a, %d %b %Y %H:%M:%S %Z')
             data['start_date'] = datetime.datetime.strptime(data['start_date'], '%a, %d %b %Y %H:%M:%S %Z')
             data['date_added'] = datetime.datetime.strptime(data['date_added'], '%a, %d %b %Y %H:%M:%S %Z')
-
+            if data['end_date']:
+                data['end_date'] = datetime.datetime.strptime(data['end_date'], '%a, %d %b %Y %H:%M:%S %Z')
             if data['notification_due']:
                 data['notification_due'] = datetime.datetime.strptime(data['notification_due'], '%a, %d %b %Y %H:%M:%S %Z')
             if data['final_version_deadline']:

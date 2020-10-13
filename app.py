@@ -132,6 +132,7 @@ def api_predict():
                        'conference_name': extract_conference_name(split_cfp_text),
                        'location': extract_locations(doc),
                        'start_date': get_start_date(date_to_sentence),
+                       'end_date': get_end_date(date_to_sentence),
                        'submission_deadline': get_submission_deadline(date_to_sentence),
                        'notification_due': get_notification_due(date_to_sentence),
                        'final_version_deadline': get_final_version_deadline(date_to_sentence),
@@ -267,14 +268,13 @@ def extract_dates(split_cfp_text):
     # returns a dictionary of form (date -> sentence)
     return date_to_sentence
 
-
 def get_start_date(date_to_sentence):
     """
     Function to extract the start date of a conference from a Call for Paper.
     Args:
         date_to_sentence: a dictionary mapping each date in the text to the sentence containing it.
     Returns:
-        conference_start: The date the conference starts, as a String.
+        conference_start: The date the conference starts, as a DateTime object.
     """
 
     if not date_to_sentence:
@@ -284,20 +284,36 @@ def get_start_date(date_to_sentence):
 
     for date in date_to_sentence:
         sentence = date_to_sentence[date].lower()
-        date_object = dateparser.parse(date)
-
         if re.search(CONFERENCE_DATES_REGEX, sentence):
-            conference_start = date_object
+            conference_start = split_dates(date)[0]
 
     # if no date found for start date, then use the first one found
     if conference_start is None:
         conference_start = list(date_to_sentence)[0]
         conference_start = dateparser.parse(conference_start)
 
-    if conference_start is not None:
-        conference_start = conference_start
-
     return conference_start
+
+def get_end_date(date_to_sentence):
+    """
+    Function to extract the end date of a conference from a Call for Paper.
+    Args:
+        date_to_sentence: a dictionary mapping each date in the text to the sentence containing it.
+    Returns:
+        conference_start: The date the conference ends, as a DateTime object.
+    """
+
+    if not date_to_sentence:
+        return None
+
+    conference_end = None
+
+    for date in date_to_sentence:
+        sentence = date_to_sentence[date].lower()
+        if re.search(CONFERENCE_DATES_REGEX, sentence):
+            conference_end = split_dates(date)[1]
+
+    return conference_end
 
 
 def get_submission_deadline(date_to_sentence):
@@ -384,6 +400,43 @@ def extract_urls(split_cfp_text):
     if not urls:
         return None
     return urls[0]
+
+def split_dates(raw_date):
+    """
+    Function to split a date range into a separate start date and end date.
+    Args:
+        raw_date: the raw text date range to split
+    Returns:
+        (start_date, end_date): a tuple of DateTime objects
+    """
+
+    start_date = None
+    end_date = None
+
+    if "-" not in raw_date:
+        start_date = (dateparser.parse(raw_date))
+        end_date = (dateparser.parse(raw_date))
+    elif raw_date[0].isdigit():
+        split = (raw_date.split("-"))
+        start_date = (dateparser.parse(raw_date))
+        end_date = (dateparser.parse(split[1]))
+    else:
+        split = (raw_date.split(" "))
+        for data in split:
+            if "-" in data:
+                split_days = data.split("-")
+                if len(split) == 3:
+                    start_date_string = split_days[0] + " " + split[0] + " " + split[2]
+                    end_date_string = split_days[1] + " " + split[0] + " " + split[2]
+                else:
+                    # year defaults to current year if none supplied
+                    now = datetime.datetime.now()
+                    start_date_string = split_days[0] + " " + split[0] + " " + str(now.year)
+                    end_date_string = split_days[1] + " " + split[0] + " " + str(now.year)
+                start_date = dateparser.parse(start_date_string)
+                end_date = dateparser.parse(end_date_string)
+
+    return (start_date, end_date)
 
 def extract_keywords(input_text):
     keywords = []
